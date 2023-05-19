@@ -2,7 +2,7 @@
 #include <AFMotor.h>
 
 #define VELOCIDADE_MAXIMA 180
-#define MARCHALENTA 60
+#define MARCHALENTA 30
 #define PARADO 0
 #define SERVO 10
 #define DIRECAO_RETA 90
@@ -20,9 +20,10 @@ Servo sm; //OBJETO DO TIPO SERVO
 volatile bool carro_parado = false;
 bool em_curva;
 uint8_t posicao;
-uint8_t velocidade = 180;
+uint8_t velocidade = 10;
 bool tentou_direita = false;
 bool tentou_esquerda = false;
+char comando;
 
 void definir_velocidade(uint8_t valor);
 void seguir_em_frente();
@@ -39,7 +40,7 @@ byte escolher_direcao();
 
 void setup()
 {
-  // Serial.begin(9600);
+  Serial.begin(9600);
   // Serial.println("Iniciando robô");
 
   motor1.setSpeed(MARCHALENTA);
@@ -64,6 +65,20 @@ void setup()
 
 void loop() 
 {
+  if (Serial.available() > 0) {
+    comando = Serial.read();
+  }
+  switch (comando) {
+    case 'F':
+      definir_velocidade(velocidade+10);
+      break;
+    case 'B':
+      definir_velocidade(velocidade-10);
+      break;
+    defaul:
+      break;
+  }
+
   corrigir_curso();
   decidir_movimento();
 }
