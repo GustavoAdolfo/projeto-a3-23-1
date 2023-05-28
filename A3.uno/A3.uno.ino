@@ -16,7 +16,7 @@ AF_DCMotor m4(4);
 
 Servo sm; //OBJETO DO TIPO SERVO
 
-uint8_t velocidade = 45;
+uint8_t velocidade = 50;
 bool tentou_direita = false;
 bool tentou_esquerda = false;
 char comando;
@@ -34,10 +34,10 @@ void VirarDireita();
 void Parar();
 void ReduzirVelocidade();
 
-const int VELOCIDADE_MAXIMA = 200;
-const int VELOCIDADE_CURVA = 100;
-const int VELOCIDADE_INICIAL = 45;
-const int VELOCIDADE_MINIMA = 30;
+const int VELOCIDADE_MAXIMA = 255;
+const int VELOCIDADE_CURVA = 160;
+const int VELOCIDADE_INICIAL = 80;
+const int VELOCIDADE_MINIMA = 50;
 const int PARADO = 0;
 
 bool carro_parado;
@@ -70,6 +70,13 @@ void setup()
   velocidade = VELOCIDADE_INICIAL;
   carro_parado = true;
   posicao = DIRECAO_RETA;
+
+  pinMode(2, OUTPUT);
+  pinMode(A2, OUTPUT);
+  pinMode(A4, OUTPUT);
+  
+  digitalWrite(A2, HIGH);
+  
 }
 
 void loop() 
@@ -106,6 +113,7 @@ void loop()
     Serial.print("[002] -> Carro pode seguir em frente? ");
     Serial.println(pode_seguir);
     if (!pode_seguir) {
+      Parar();
       Serial.print("[003] -> Carro Parado: ");
       Serial.println(carro_parado);
       decidir_movimento();
@@ -115,19 +123,21 @@ void loop()
   Serial.print("[004] -> POSICAO: ");
   Serial.println(posicao);
   Serial.println("[999] *** FIM DO LOOP ***\n");
-  delay(1000);
 }
 
 /***************************************/
 
 void SeguirEmFrente() {
   // Serial.println("**** Movendo o carro em velocidade normal...");
+  digitalWrite(2, HIGH);
+  digitalWrite(A2, LOW);
+  digitalWrite(A4, LOW);
 
   m1.setSpeed(velocidade);
-  m1.run(FORWARD);
+  m1.run(BACKWARD);
 
   m2.setSpeed(velocidade);
-  m2.run(FORWARD);
+  m2.run(BACKWARD);
 
   m3.setSpeed(velocidade);
   m3.run(BACKWARD);
@@ -140,14 +150,14 @@ void SeguirEmFrente() {
 
 void MarchaRe() {
   // Serial.println(" @ @ @ @ @ @ Em marcha ré...");
-
   carro_parado = false;
+  digitalWrite(2, LOW);
   
   m1.setSpeed(velocidade);
-  m1.run(BACKWARD);
+  m1.run(FORWARD);
 
   m2.setSpeed(velocidade);
-  m2.run(BACKWARD);
+  m2.run(FORWARD);
 
   m3.setSpeed(velocidade);
   m3.run(FORWARD);
@@ -156,10 +166,15 @@ void MarchaRe() {
   m4.run(FORWARD);
   
   unsigned long tempo1 = millis();
-  while(millis() - tempo1 < 3000) {
+  while(millis() - tempo1 < 1000) {
     // apenas para andar em marcha ré
+    digitalWrite(A2, HIGH);
+    digitalWrite(A4, LOW);
+    delay(100);
+    digitalWrite(A2, LOW);
+    digitalWrite(A4, HIGH);
+    delay(100);
   }
-  // delay(500);
 }
 
 void CorrigirCurso() {
@@ -183,25 +198,10 @@ void CorrigirCurso() {
 
 void VirarEsquerda() {
   Serial.println("===>Virando o servo motor para a ESQUERDA...");
+  digitalWrite(2, LOW);
+  digitalWrite(A2, HIGH);
+  digitalWrite(A4, HIGH);
   
-  m1.setSpeed(VELOCIDADE_CURVA);
-  m1.run(BACKWARD);
-
-  m2.setSpeed(VELOCIDADE_CURVA);
-  m2.run(BACKWARD);
-
-  m3.setSpeed(VELOCIDADE_CURVA);
-  m3.run(BACKWARD);
-
-  m4.setSpeed(VELOCIDADE_CURVA);
-  m4.run(BACKWARD);
-
-  delay(100);
-}
-
-void VirarDireita() {
-  Serial.println("===>Virando o servo motor para a DIREITA...");
-
   m1.setSpeed(VELOCIDADE_CURVA);
   m1.run(FORWARD);
 
@@ -209,15 +209,40 @@ void VirarDireita() {
   m2.run(FORWARD);
 
   m3.setSpeed(VELOCIDADE_CURVA);
+  m3.run(BACKWARD);
+
+  m4.setSpeed(VELOCIDADE_CURVA);
+  m4.run(BACKWARD);
+  
+  delay(100);
+}
+
+void VirarDireita() {
+  Serial.println("===>Virando o servo motor para a DIREITA...");
+  digitalWrite(2, LOW);
+  digitalWrite(A2, HIGH);
+  digitalWrite(A4, HIGH);
+
+  m1.setSpeed(VELOCIDADE_CURVA);
+  m1.run(BACKWARD);
+
+  m2.setSpeed(VELOCIDADE_CURVA);
+  m2.run(BACKWARD);
+
+  m3.setSpeed(VELOCIDADE_CURVA);
   m3.run(FORWARD);
 
   m4.setSpeed(VELOCIDADE_CURVA);
   m4.run(FORWARD);
-
+  
   delay(100);
 }
 
 void Parar() {
+  digitalWrite(2, LOW);
+  digitalWrite(A2, HIGH);
+  digitalWrite(A4, LOW);
+
   m1.setSpeed(PARADO);
   m1.run(RELEASE);
 
@@ -264,7 +289,7 @@ bool carro_pode_seguir() {
   // Serial.print(distanciaCm);
   // Serial.println("cm");
 
-  if (distanciaCm <= 30) // SE FOR MENOR OU IGUAL A 30 CM
+  if (distanciaCm <= 40) // SE FOR MENOR OU IGUAL A 40 CM (tamanho aproximado do carro atualmente)
   {
     Parar();
     return false;
@@ -275,8 +300,11 @@ bool carro_pode_seguir() {
 
 /**************************************/
 
-
 void decidir_movimento() {
+  digitalWrite(2, HIGH);
+  digitalWrite(A2, LOW);
+  digitalWrite(A4, HIGH);
+
   byte direcao = 0;
   // Serial.print("***  (1) O carro está parado? ");
   // Serial.println(carro_parado);
@@ -294,7 +322,9 @@ void decidir_movimento() {
           sm.write(posicao);
           delay(20);
         }
+        
         if (!carro_pode_seguir()) {
+          Parar();
           CorrigirCurso();
           Serial.println(">>>>>>>>>>>>>>>>>>>>>>>>>> Carro não pode seguir para ESQUERDA");
           tentou_esquerda = true;
@@ -317,6 +347,7 @@ void decidir_movimento() {
           delay(20);
         }
         if (!carro_pode_seguir()) {
+          Parar();
           Serial.println(">>>>>>>>>>>>>>>>>>>>>>>>>> Carro não pode seguir para DIREITA");
           CorrigirCurso();
           tentou_direita = true;
@@ -345,10 +376,14 @@ void decidir_movimento() {
   
   Serial.print("*** (2) O carro está parado? ");
   Serial.println(carro_parado);
-  delay(1000);
+  delay(500);
 }
 
 byte escolher_direcao() {
+  digitalWrite(2, HIGH);
+  digitalWrite(A2, LOW);
+  digitalWrite(A4, HIGH);
+  
   if (tentou_direita && tentou_esquerda) {
     // Serial.println("**** **** **** JÁ TENTOU DIREITA E ESQUERDA ");
     return 0;
