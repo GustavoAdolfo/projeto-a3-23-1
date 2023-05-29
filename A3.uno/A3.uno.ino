@@ -9,8 +9,8 @@
 #define ECHO A0
 
 // MOTOR12_64KHZ, MOTOR12_8KHZ, MOTOR12_2KHZ, MOTOR12_1KHZ.
-AF_DCMotor m1(1, MOTOR12_8KHZ);
-AF_DCMotor m2(2, MOTOR12_8KHZ);
+AF_DCMotor m1(1);
+AF_DCMotor m2(2);
 AF_DCMotor m3(3);
 AF_DCMotor m4(4);
 
