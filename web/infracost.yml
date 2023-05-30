@@ -1,0 +1,7 @@
+version: 0.1
+projects:
+  - path: .
+    name: A3
+    # usage_file: infracost.yml
+    terraform_var_files:
+      - default.tfvars

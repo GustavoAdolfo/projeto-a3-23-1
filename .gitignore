@@ -1,1 +1,3 @@
 **/*.zip
+**/.infracost
+web/infra/.infracost/terraform_modules/manifest.json

@@ -1,0 +1,4 @@
+**.terraform/
+.infracost/
+**/.infracost/terraform_modules/
+.infracost/terraform_modules/manifest.json

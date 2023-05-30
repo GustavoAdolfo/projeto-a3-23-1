@@ -5,7 +5,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h3>Carro Detector de Obstátulos</h3>
+        <h3>Carro Detector de Obstáculos</h3>
         <h5>USJT - Engenharia da Computação - 2023.1</h5>
         <div className='equipe'>
           <strong>Equipe: </strong>
@@ -16,7 +16,9 @@ function App() {
       </header>
 
       <main>
-        
+        <canvas id="canvas" width="200" height="100" className="canvas-mapa"> 
+          Se seu navegador não suportar HTML5 você verá esta mensagem. 
+        </canvas> 
       </main>
     </div>
   );

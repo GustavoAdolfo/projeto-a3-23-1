@@ -1,0 +1,8 @@
+{
+    "files.autoSave": "onFocusChange",
+    "terraform.codelens.referenceCount": true,
+    "terraform.experimentalFeatures.validateOnSave": true,
+    "terraform.languageServer.enable": true,
+    "terraform.experimentalFeatures.prefillRequiredFields": true,
+    "editor.suggest.preview": true
+}
